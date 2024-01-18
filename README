@@ -1,0 +1,64 @@
+# GoLite Framework
+
+## Description
+
+**GoLite Framework** is a lightweight and versatile web application framework for the Go programming language. It provides a powerful set of tools and features to streamline web development, making it easy to create robust and scalable web applications.
+
+### Key Features
+
+- **Routing**: Define and manage your application's routes with ease.
+- **Middleware**: Implement middleware for request/response processing and customization.
+- **Grouping**: Organize routes and apply middleware to specific route groups.
+- **Extensibility**: Extend the framework with your custom components and middleware.
+- **Efficiency**: Designed for high performance and efficiency in mind.
+
+Whether you're building a small web application or a large-scale project, GoLite Framework empowers you to create web solutions quickly and efficiently.
+
+## Getting Started
+
+To get started with GoLite Framework, follow these simple steps:
+
+1. **Installation**: Install GoLite Framework using `go get`:
+
+    ```bash
+    go get github.com/sCuz12/golite-framework
+    ```
+
+2. **Usage**: Import the framework in your Go code and start building your web application:
+
+    ```go
+    import "github.com/sCuz12/golite-framework"
+    ```
+
+3. **Documentation**: 
+
+## Example
+
+Here's a quick example of defining a route and serving a basic "Hello, World!" response using GoLite Framework:
+
+```go
+package main
+
+import (
+    "github.com/sCuz12/golite-framework"
+    "net/http"
+)
+
+func main() {
+    router := golite.New()
+
+    router.Group("/user").
+	Add("/info", testHandler).
+	Add("/check", testHandler)
+
+
+	routes.AddRoute("/test",router)
+
+	// routes.ListRoutes()
+
+	httpServer := server.NewHTTPServer(":8000",router)
+
+	httpServer.Start()
+}
+
+
