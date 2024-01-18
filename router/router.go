@@ -5,11 +5,12 @@ import (
 	"net/http"
 )
 
-// /api/log => handler
-
 type Router struct {
 	routes map[string] http.HandlerFunc
+	middlewareChain []MiddleWare
 }
+
+type MiddleWare func(http.Handler) http.Handler
 
 
 type RouteGroup struct { 
@@ -46,12 +47,26 @@ func (rg *RouteGroup) Add(path string , handler http.HandlerFunc) *RouteGroup {
 	return rg
 }
 
+func (r *Router) Use(mw MiddleWare) {
+	//append to middlewares the new middleware
+	r.middlewareChain = append(r.middlewareChain,mw)
+}
+
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-    if handler, exists := r.routes[req.URL.Path]; exists {
-        handler(w, req)
-    } else {
+	handler, exists := r.routes[req.URL.Path]
+    
+    if !exists {
         http.NotFound(w, req)
+        return
     }
+
+	finalHandler := http.Handler(handler)
+
+    for i := len(r.middlewareChain) - 1; i >= 0; i-- {
+        finalHandler = r.middlewareChain[i](finalHandler)
+    }
+
+    finalHandler.ServeHTTP(w, req)
 }
 
 func (r *Router) ListRoutes() {
