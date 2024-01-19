@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"golite/internal/middleware"
+	"golite/middleware"
 	"golite/router"
 	"golite/server"
 	"net/http"
@@ -13,13 +13,12 @@ import (
 func main() {
 	routes :=  router.New()
 
-
-	//routes.Use(LoggingMiddleware)
-
+	//Apply to this group only the middleware
 	routes.Group("/user").
-	AddMiddleware(middleware.Logging,middleware.Authenticate).
+	AddMiddleware(middleware.Logging).
 	Add("/info", testHandler).
-	Add("/check", testHandler)
+	Add("/check", testHandler).
+	Add("/bio",testHandler)
 
 
 	routes.Group("/owner").
