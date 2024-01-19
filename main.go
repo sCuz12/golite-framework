@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"golite/middleware"
+	"golite/internal/middleware"
 	"golite/router"
 	"golite/server"
 	"net/http"
@@ -17,21 +17,19 @@ func main() {
 	//routes.Use(LoggingMiddleware)
 
 	routes.Group("/user").
-	Use(middleware.Logging).
-	Use(middleware.Authenticate).
+	AddMiddleware(middleware.Logging,middleware.Authenticate).
 	Add("/info", testHandler).
 	Add("/check", testHandler)
 
 
-	// routes.Group("/owner").
-    // Use(LoggingMiddleware). // Optionally, apply middleware specific to the owner group.
-    // Add("/check", testHandler) // Add routes within the owner group.
+	routes.Group("/owner").
+    Add("/check", testHandler) // Add routes within the owner group.
 
 
 	routes.AddRoute("/test",testHandler)
 	routes.AddRoute("/xoxo",testHandler)
 
-	// routes.ListRoutes()
+	routes.ListRoutes()
 
 	httpServer := server.NewHTTPServer(":8000",routes)
 

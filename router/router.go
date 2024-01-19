@@ -47,7 +47,7 @@ func (rg *RouteGroup) Add(path string , handler http.HandlerFunc) *RouteGroup {
 
     //combine groups middleware with router middleware 
     combinedMiddlewares := append(rg.middlewareChain,rg.router.middlewareChain...)
-
+ 
     //wrap the final wrapper 
     finalHandler := http.Handler(handler)
 
@@ -68,8 +68,8 @@ func (r *Router) Use(mw MiddleWare) {
 	r.middlewareChain = append(r.middlewareChain,mw)
 }
 
-func (rg *RouteGroup) Use(mw MiddleWare) *RouteGroup {
-    rg.middlewareChain = append(rg.middlewareChain, mw) 
+func (rg *RouteGroup) AddMiddleware(mw ...MiddleWare) *RouteGroup {
+    rg.middlewareChain = append(rg.middlewareChain, mw...) 
     return rg 
 }
 
