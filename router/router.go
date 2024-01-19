@@ -16,6 +16,7 @@ type MiddleWare func(http.Handler) http.Handler
 type RouteGroup struct { 
 	prefix string 
 	router *Router
+    middlewareChain []MiddleWare
 }
 
 
@@ -35,6 +36,7 @@ func (r *Router) Group(prefix string) *RouteGroup {
 	return &RouteGroup{
 		prefix: prefix,
 		router: r,
+        middlewareChain: nil, // Initialize middleware chain
 	}
 }
 /**
@@ -42,7 +44,21 @@ func (r *Router) Group(prefix string) *RouteGroup {
 **/
 func (rg *RouteGroup) Add(path string , handler http.HandlerFunc) *RouteGroup {
 	fullPath := rg.prefix + path
-    rg.router.routes[fullPath] = handler
+
+    //combine groups middleware with router middleware 
+    combinedMiddlewares := append(rg.middlewareChain,rg.router.middlewareChain...)
+
+    //wrap the final wrapper 
+    finalHandler := http.Handler(handler)
+
+    for i:=len(combinedMiddlewares)-1; i >=0;i-- {
+        //apply all midlewares to handler\
+        finalHandler = combinedMiddlewares[i](finalHandler)
+    } 
+
+   rg.router.routes[fullPath] = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    finalHandler.ServeHTTP(w, req)
+    })
 
 	return rg
 }
@@ -50,6 +66,11 @@ func (rg *RouteGroup) Add(path string , handler http.HandlerFunc) *RouteGroup {
 func (r *Router) Use(mw MiddleWare) {
 	//append to middlewares the new middleware
 	r.middlewareChain = append(r.middlewareChain,mw)
+}
+
+func (rg *RouteGroup) Use(mw MiddleWare) *RouteGroup {
+    rg.middlewareChain = append(rg.middlewareChain, mw) 
+    return rg 
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
